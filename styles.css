@@ -1,0 +1,821 @@
+/* ============================================================
+   HSK Word Search — Styles
+   Minimalist, calm, modern study app UI
+   ============================================================ */
+
+/* --- Reset & Base --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- CSS Variables: Light Theme --- */
+:root {
+  /* HSK level palette (from hsk-bingo) */
+  --hsk1: #a8e6cf;
+  --hsk2: #88d8c0;
+  --hsk3: #7ec8e3;
+  --hsk4: #b8a9e8;
+  --hsk5: #f4b886;
+  --hsk6: #f28b82;
+  --hsk7: #c4a8d4;
+
+  --hsk1-dark: #6bc9a0;
+  --hsk2-dark: #5bbfa5;
+  --hsk3-dark: #549ec5;
+  --hsk4-dark: #8a74d1;
+  --hsk5-dark: #e89550;
+  --hsk6-dark: #e05a50;
+  --hsk7-dark: #a07cb8;
+
+  /* Layout */
+  --sidebar-width: 280px;
+
+  /* Colors */
+  --bg:           #f7f7f5;
+  --bg-sidebar:   #ffffff;
+  --bg-card:      #ffffff;
+  --bg-cell:      #ededea;
+  --bg-cell-hover:#ddddd8;
+  --bg-input:     #f3f3f0;
+
+  --text:         #2c2c2c;
+  --text-mid:     #555555;
+  --text-light:   #999999;
+
+  --border:       #e8e8e4;
+  --border-input: #d8d8d4;
+
+  --shadow-sm:    0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.10);
+
+  --accent:       #6c8ebf;
+  --success:      #4caf6e;
+  --success-bg:   #d4f5df;
+  --danger:       #e05a50;
+  --danger-bg:    #fde8e6;
+
+  --radius-sm:    6px;
+  --radius-md:    12px;
+  --radius-lg:    20px;
+
+  --cell-gap:     3px;
+  --transition:   0.18s ease;
+}
+
+/* --- Dark Theme --- */
+[data-theme="dark"] {
+  --bg:           #1c1c1e;
+  --bg-sidebar:   #252528;
+  --bg-card:      #2e2e32;
+  --bg-cell:      #333337;
+  --bg-cell-hover:#3e3e44;
+  --bg-input:     #2a2a2e;
+
+  --text:         #e8e8e8;
+  --text-mid:     #aaaaaa;
+  --text-light:   #666666;
+
+  --border:       #3a3a3f;
+  --border-input: #444448;
+
+  --shadow-sm:    0 1px 4px rgba(0,0,0,0.3);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg:    0 8px 32px rgba(0,0,0,0.5);
+
+  --success-bg:   #1e3d28;
+  --danger-bg:    #3d1e1c;
+}
+
+/* --- Typography & Base --- */
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC',
+               'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text);
+  transition: background var(--transition), color var(--transition);
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 2px 0 12px var(--shadow-sm);
+  transition: background var(--transition), border-color var(--transition);
+  z-index: 10;
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* --- Header --- */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text);
+}
+
+.theme-toggle {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  flex-shrink: 0;
+  color: var(--text-mid);
+}
+
+.theme-toggle:hover {
+  background: var(--bg-cell-hover);
+}
+
+/* ============================================================
+   Mode Switcher
+   ============================================================ */
+
+.mode-switcher {
+  display: flex;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  gap: 3px;
+  flex-shrink: 0;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.mode-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 6px;
+  border: none;
+  border-radius: calc(var(--radius-lg) - 4px);
+  background: transparent;
+  color: var(--text-light);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.mode-btn .mode-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mode-btn .mode-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+.mode-btn:hover:not(.active) {
+  color: var(--text-mid);
+  background: var(--bg-cell-hover);
+}
+
+.mode-btn.active {
+  background: var(--bg-card);
+  color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+
+.mode-btn.active .mode-icon {
+  transform: scale(1.15);
+}
+
+/* Hide settings sections that are irrelevant to certain modes */
+.sidebar[data-mode="pair"] .mode-only-search {
+  display: none;
+}
+
+
+
+.task-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: clip;
+  flex-shrink: 0;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+
+/* Color accent strip at top of card */
+.task-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--card-color, var(--hsk1));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  transition: background 0.3s ease;
+}
+
+.task-level-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  background: var(--card-color-soft, #f0f0f0);
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-top: 4px;
+  transition: all 0.3s ease;
+}
+
+/* Level colors for the badge and accent strip */
+.task-card[data-level="1"] { --card-color: var(--hsk1); --card-color-soft: #e8f8f0; }
+.task-card[data-level="2"] { --card-color: var(--hsk2); --card-color-soft: #dff5ef; }
+.task-card[data-level="3"] { --card-color: var(--hsk3); --card-color-soft: #dff2f9; }
+.task-card[data-level="4"] { --card-color: var(--hsk4); --card-color-soft: #ede8f9; }
+.task-card[data-level="5"] { --card-color: var(--hsk5); --card-color-soft: #fdf0e2; }
+.task-card[data-level="6"] { --card-color: var(--hsk6); --card-color-soft: #fde8e6; }
+.task-card[data-level="7"] { --card-color: var(--hsk7); --card-color-soft: #f0eaf7; }
+
+[data-theme="dark"] .task-card[data-level="1"] { --card-color-soft: #1e3a2e; }
+[data-theme="dark"] .task-card[data-level="2"] { --card-color-soft: #1a3530; }
+[data-theme="dark"] .task-card[data-level="3"] { --card-color-soft: #1a303a; }
+[data-theme="dark"] .task-card[data-level="4"] { --card-color-soft: #2a2540; }
+[data-theme="dark"] .task-card[data-level="5"] { --card-color-soft: #3a2a18; }
+[data-theme="dark"] .task-card[data-level="6"] { --card-color-soft: #3a1e1c; }
+[data-theme="dark"] .task-card[data-level="7"] { --card-color-soft: #2a2235; }
+
+.task-char {
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 4px;
+  color: var(--text);
+  margin: 8px 0 4px;
+  transition: all 0.3s ease;
+  word-break: break-all;
+  text-align: center;
+}
+
+.task-pinyin {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+  font-style: italic;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.task-english {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Card entrance animation */
+.task-card.card-animate .task-char {
+  animation: cardPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cardPop {
+  from { transform: scale(0.85); opacity: 0.4; }
+  to   { transform: scale(1);    opacity: 1;   }
+}
+
+/* ============================================================
+   Timer
+   ============================================================ */
+
+.timer {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 300;
+  letter-spacing: 3px;
+  color: var(--text-mid);
+  font-variant-numeric: tabular-nums;
+  padding: 4px 0;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Sidebar Buttons
+   ============================================================ */
+
+.sidebar-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn {
+  flex: 1;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all var(--transition);
+  text-align: center;
+  background: var(--bg-input);
+  color: var(--text);
+}
+
+.btn-next {
+  background: var(--text);
+  color: var(--bg-sidebar);
+  border-color: var(--text);
+}
+
+.btn-next:hover {
+  opacity: 0.85;
+}
+
+.btn-reset {
+  color: var(--danger);
+  border-color: var(--danger-bg);
+  background: var(--danger-bg);
+}
+
+.btn-reset:hover {
+  opacity: 0.8;
+}
+
+/* ============================================================
+   Settings Panel
+   ============================================================ */
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+}
+
+.settings-select {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text);
+  font-size: 0.8rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 26px;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.settings-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Button groups (difficulty, filter) */
+.btn-group {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-group .difficulty-btn,
+.btn-group .filter-btn {
+  flex: 1;
+  padding: 6px 4px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-mid);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: center;
+}
+
+.btn-group .difficulty-btn:hover,
+.btn-group .filter-btn:hover {
+  background: var(--bg-cell-hover);
+  color: var(--text);
+}
+
+.btn-group .difficulty-btn.active,
+.btn-group .filter-btn.active {
+  background: var(--text);
+  color: var(--bg-sidebar);
+  border-color: var(--text);
+}
+
+/* Toggle checkboxes */
+.settings-toggles {
+  gap: 8px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  transition: color var(--transition);
+}
+
+.toggle-row:hover {
+  color: var(--text);
+}
+
+.toggle-row input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+/* ============================================================
+   Game Area
+   ============================================================ */
+
+.game-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+  background: var(--bg);
+  transition: background var(--transition);
+}
+
+/* ============================================================
+   Grid Container
+   ============================================================ */
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-cols, 8), 1fr);
+  grid-auto-rows: 1fr;
+  gap: var(--cell-gap);
+
+  /* Square: constrained by both viewport dimensions */
+  width:  min(calc(100vw - var(--sidebar-width) - 48px), calc(100vh - 48px));
+  height: min(calc(100vw - var(--sidebar-width) - 48px), calc(100vh - 48px));
+
+  max-width: 780px;
+  max-height: 780px;
+}
+
+/* ============================================================
+   Grid Cells
+   ============================================================ */
+
+.grid-cell {
+  background: var(--bg-cell);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 500;
+  line-height: 1;
+
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition), transform var(--transition),
+              box-shadow var(--transition), color var(--transition);
+  position: relative;
+  overflow: hidden;
+  color: var(--text);
+
+  /*
+   * Font scales with the cell size:
+   *   55% of cell width = 55cqw (container width) / num-columns
+   * This means easy (8 cols) → big chars, hard (16 cols) → smaller chars.
+   * cqw references .grid-container (container-type: inline-size).
+   * --grid-cols is inherited from the container's inline style.
+   */
+  font-size: clamp(0.75rem, calc(55cqw / var(--grid-cols, 10)), 3.5rem);
+}
+
+/* Modern browsers: container query for font scaling */
+.grid-container {
+  container-type: inline-size;
+}
+
+.grid-cell:hover {
+  background: var(--bg-cell-hover);
+  transform: scale(1.08);
+  z-index: 2;
+  box-shadow: var(--shadow-md);
+}
+
+.grid-cell:active {
+  transform: scale(0.96);
+}
+
+/* ---- Selected cell (pair mode: first matching cell clicked) ---- */
+.grid-cell.cell-selected {
+  background: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: inset 0 0 0 2px oklch(from var(--accent) calc(l - 0.15) c h) !important;
+  font-weight: 700;
+  z-index: 3;
+  animation: cellSelected 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes cellSelected {
+  0%   { transform: scale(1);    }
+  55%  { transform: scale(1.14); }
+  100% { transform: scale(1.06); }
+}
+
+/* ---- Correct cell (target word found) ---- */
+.grid-cell.cell-correct {  background: var(--success-bg) !important;
+  color: var(--success) !important;
+  box-shadow: inset 0 0 0 2px var(--success) !important;
+  font-weight: 700;
+  z-index: 5;
+  animation: cellCorrect 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes cellCorrect {
+  0%   { transform: scale(1);    }
+  55%  { transform: scale(1.18); }
+  100% { transform: scale(1);    }
+}
+
+/* ---- Reveal cell (skipped — show where the answer was) ---- */
+.grid-cell.cell-reveal {
+  background: #fff3cd !important;
+  color: #856404 !important;
+  box-shadow: inset 0 0 0 2px #e6a817 !important;
+  font-weight: 700;
+  z-index: 5;
+  animation: cellReveal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+[data-theme="dark"] .grid-cell.cell-reveal {
+  background: #3d3010 !important;
+  color: #f5c842 !important;
+  box-shadow: inset 0 0 0 2px #e6a817 !important;
+}
+
+@keyframes cellReveal {
+  0%   { transform: scale(1);    opacity: 0.4; }
+  55%  { transform: scale(1.18); opacity: 1;   }
+  100% { transform: scale(1);    opacity: 1;   }
+}
+
+/* ---- Wrong cell animation ---- */
+.grid-cell.cell-wrong {
+  background: var(--danger-bg) !important;
+  color: var(--danger) !important;
+  animation: cellShake 0.45s ease;
+}
+
+@keyframes cellShake {
+  0%   { transform: translateX(0);    }
+  15%  { transform: translateX(-5px); }
+  30%  { transform: translateX(5px);  }
+  45%  { transform: translateX(-4px); }
+  60%  { transform: translateX(4px);  }
+  75%  { transform: translateX(-2px); }
+  90%  { transform: translateX(2px);  }
+  100% { transform: translateX(0);    }
+}
+
+/* ============================================================
+   Grid entrance animation
+   ============================================================ */
+
+.grid-container.grid-enter .grid-cell {
+  animation: cellFadeIn var(--cell-delay, 0.3s) ease forwards;
+  opacity: 0;
+}
+
+@keyframes cellFadeIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+
+/* ============================================================
+   Cell Tooltip
+   ============================================================ */
+
+.cell-tooltip {
+  position: fixed;
+  z-index: 1000;
+  background: var(--bg-card);
+  border: 1.5px solid var(--tooltip-color, var(--border));
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  min-width: 100px;
+  max-width: 220px;
+  transition: opacity 0.12s ease, visibility 0.12s ease;
+}
+
+/* Border color per HSK level */
+.cell-tooltip[data-level="1"] { --tooltip-color: var(--hsk1-dark); }
+.cell-tooltip[data-level="2"] { --tooltip-color: var(--hsk2-dark); }
+.cell-tooltip[data-level="3"] { --tooltip-color: var(--hsk3-dark); }
+.cell-tooltip[data-level="4"] { --tooltip-color: var(--hsk4-dark); }
+.cell-tooltip[data-level="5"] { --tooltip-color: var(--hsk5-dark); }
+.cell-tooltip[data-level="6"] { --tooltip-color: var(--hsk6-dark); }
+.cell-tooltip[data-level="7"] { --tooltip-color: var(--hsk7-dark); }
+
+.cell-tooltip.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Level badge — small number in the top-right corner */
+.ct-level-badge {
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--tooltip-color, var(--text-light));
+  opacity: 0.85;
+  letter-spacing: 0.2px;
+}
+
+.ct-word {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+  margin-bottom: 5px;
+  letter-spacing: 2px;
+}
+
+.ct-pinyin {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-mid);
+  margin-bottom: 2px;
+}
+
+.ct-english {
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  line-height: 1.35;
+}
+
+/* ============================================================
+   Responsive Layout
+   ============================================================ */
+
+@media (max-width: 780px) {
+  body {
+    flex-direction: column;
+    overflow: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 14px;
+    gap: 10px;
+    box-shadow: 0 2px 8px var(--shadow-sm);
+    overflow: visible;
+  }
+
+  .sidebar-header {
+    width: 100%;
+  }
+
+  .task-card {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 14px;
+    gap: 8px;
+  }
+
+  .task-char {
+    font-size: 2rem;
+    margin: 0;
+  }
+
+  .stats-row {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .sidebar-actions {
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .settings {
+    width: 100%;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .settings-section {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .game-area {
+    padding: 12px;
+    overflow: hidden;
+  }
+
+  .grid-container {
+    width:  min(calc(100vw - 24px), calc(100vh - 300px));
+    height: min(calc(100vw - 24px), calc(100vh - 300px));
+  }
+}
+
+@media (max-width: 480px) {
+  .task-char {
+    font-size: 1.6rem;
+  }
+
+  .grid-container {
+    width:  calc(100vw - 24px);
+    height: calc(100vw - 24px);
+    max-height: 60vw;
+  }
+}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HSK Word Search</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ===== Left Sidebar ===== -->
+  <aside class="sidebar" data-mode="search">
+
+    <div class="sidebar-header">
+      <h1 class="app-title" id="app-title">Word Search</h1>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <svg class="icon-moon" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+          <path d="M13 9.5A5.5 5.5 0 0 1 5.5 2a5.5 5.5 0 1 0 7.5 7.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <svg class="icon-sun" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true" style="display:none">
+          <circle cx="7.5" cy="7.5" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7.5 1v2M7.5 12v2M1 7.5h2M12 7.5h2M3 3l1.5 1.5M10.5 10.5 12 12M12 3l-1.5 1.5M4.5 10.5 3 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mode switcher -->
+    <div class="mode-switcher" role="tablist">
+      <button class="mode-btn active" data-mode="search" role="tab">
+        <span class="mode-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="7.5" cy="7.5" r="5" stroke="currentColor" stroke-width="1.7"/>
+            <line x1="11.5" y1="11.5" x2="16.5" y2="16.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="mode-label">Word Search</span>
+      </button>
+      <button class="mode-btn" data-mode="pair" role="tab">
+        <span class="mode-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <rect x="1" y="4" width="7" height="10" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+            <rect x="10" y="4" width="7" height="10" rx="1.5" stroke="currentColor" stroke-width="1.7"/>
+          </svg>
+        </span>
+        <span class="mode-label">Find Pair</span>
+      </button>
+    </div>
+
+    <!-- Task card: shows the character/word to find -->
+    <div id="task-card" class="task-card">
+      <div class="task-level-badge" id="task-level">HSK 1</div>
+      <div class="task-char" id="task-char">—</div>
+      <div class="task-pinyin" id="task-pinyin"></div>
+      <div class="task-english" id="task-english"></div>
+    </div>
+
+    <!-- Round timer (visible only when timer mode is on) -->
+    <div id="timer" class="timer" style="display:none">00:00</div>
+
+    <!-- Action buttons -->
+    <div class="sidebar-actions">
+      <button id="btn-next" class="btn btn-next">Skip →</button>
+      <button id="btn-reset-stats" class="btn btn-reset">Reset Stats</button>
+    </div>
+
+    <!-- Settings -->
+    <div class="settings">
+
+      <div class="settings-section">
+        <span class="settings-label">HSK Level</span>
+        <select id="setting-level" class="settings-select">
+          <option value="mixed" selected>Mixed (All)</option>
+          <option value="1">HSK 1</option>
+          <option value="2">HSK 2</option>
+          <option value="3">HSK 3</option>
+          <option value="4">HSK 4</option>
+          <option value="5">HSK 5</option>
+          <option value="6">HSK 6</option>
+          <option value="7-9">HSK 7–9</option>
+        </select>
+      </div>
+
+      <div class="settings-section">
+        <span class="settings-label">Difficulty</span>
+        <div class="btn-group">
+          <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
+          <button class="difficulty-btn" data-difficulty="medium">Med</button>
+          <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+      </div>
+
+      <div class="settings-section mode-only-search">
+        <span class="settings-label">Word Filter</span>
+        <div class="btn-group">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="single">Single</button>
+          <button class="filter-btn" data-filter="multi">Multi</button>
+        </div>
+      </div>
+
+      <div class="settings-section settings-toggles">
+        <label class="toggle-row">
+          <input type="checkbox" id="toggle-pinyin" checked>
+          <span>Show Pinyin</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="toggle-translation" checked>
+          <span>Show Translation</span>
+        </label>
+        <label class="toggle-row">
+          <input type="checkbox" id="toggle-timer">
+          <span>Timer</span>
+        </label>
+      </div>
+
+    </div><!-- /settings -->
+
+  </aside><!-- /sidebar -->
+
+  <!-- ===== Game Area ===== -->
+  <main class="game-area">
+    <div id="grid-container" class="grid-container"></div>
+  </main>
+
+  <!-- Cell hover tooltip -->
+  <div id="cell-tooltip" class="cell-tooltip hidden">
+    <div class="ct-level-badge"></div>
+    <div class="ct-word"></div>
+    <div class="ct-pinyin"></div>
+    <div class="ct-english"></div>
+  </div>
+
+  <!-- HSK Data (loaded as global window.HSK_DATA array) -->
+  <script src="hsk/hsk-1.js"></script>
+  <script src="hsk/hsk-2.js"></script>
+  <script src="hsk/hsk-3.js"></script>
+  <script src="hsk/hsk-4.js"></script>
+  <script src="hsk/hsk-5.js"></script>
+  <script src="hsk/hsk-6.js"></script>
+  <script src="hsk/hsk-7-9.js"></script>
+
+  <script src="script.js"></script>
+</body>
+</html>
