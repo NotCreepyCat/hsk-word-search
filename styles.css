@@ -9,6 +9,8 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  /* Kill the translucent blue tap-highlight box mobile browsers draw on tap. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* --- CSS Variables: Light Theme --- */
@@ -218,6 +220,7 @@ body {
    ============================================================ */
 
 .mode-switcher {
+  position: relative;
   display: flex;
   background: var(--bg-input);
   border-radius: var(--radius-lg);
@@ -228,8 +231,31 @@ body {
   transition: background var(--transition);
 }
 
+/* A single raised knob that slides to the active tab. The buttons themselves
+   are flat — no more "inset inside inset". */
+.mode-switcher::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 8px;
+  width: calc(50% - 12px);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  box-shadow: var(--nm-raised-sm);
+  transition: transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 0;
+}
+
+/* Slide the knob over to the second tab (width of one tab + the 8px gap). */
+.sidebar[data-mode="pair"] .mode-switcher::before {
+  transform: translateX(calc(100% + 8px));
+}
+
 .mode-btn {
   flex: 1;
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -237,12 +263,11 @@ body {
   padding: 12px 6px;
   border: none;
   border-radius: var(--radius-md);
-  background: var(--bg-card);
+  background: transparent;
   color: var(--text-light);
   cursor: pointer;
   font-family: inherit;
-  box-shadow: var(--nm-raised-sm);
-  transition: box-shadow 0.22s ease, color 0.22s ease, transform 0.22s ease;
+  transition: color 0.22s ease, transform 0.22s ease;
 }
 
 .mode-btn .mode-icon {
@@ -267,7 +292,6 @@ body {
 
 .mode-btn.active {
   color: var(--accent);
-  box-shadow: var(--nm-inset-sm);
 }
 
 .mode-btn.active .mode-icon {
@@ -642,6 +666,8 @@ body {
 
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   position: relative;
   overflow: hidden;
   color: var(--text);
@@ -653,16 +679,52 @@ body {
   font-size: clamp(0.75rem, calc(55cqw / var(--grid-cols, 10)), 3.5rem);
 }
 
-.grid-cell:hover {
-  color: var(--accent);
-  transform: scale(1.05);
-  z-index: 2;
-  box-shadow: var(--nm-raised-md);
+/* Inset "pressed" layer. box-shadow can't smoothly tween raised→inset (it
+   snaps discretely mid-transition), so instead we crossfade this overlay's
+   opacity while the base raised shadow fades out — one smooth depress. */
+.grid-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: var(--nm-inset-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+
+/* Only real pointers get the hover lift — on touch, :hover sticks after a
+   tap and leaves a blue raised cell hovering over the grid. */
+@media (hover: hover) {
+  .grid-cell:hover {
+    color: var(--accent);
+    transform: scale(1.05);
+    z-index: 2;
+    box-shadow: var(--nm-raised-md);
+  }
 }
 
 .grid-cell:active {
   transform: scale(0.97);
-  box-shadow: var(--nm-inset-sm);
+  box-shadow: none;
+}
+
+/* Fade the base raised shadow out and the inset overlay in together — this
+   keeps the press a single, continuous motion at one depth (no jerks). */
+.grid-cell:active,
+.grid-cell.cell-selected,
+.grid-cell.cell-correct,
+.grid-cell.cell-reveal,
+.grid-cell.cell-wrong {
+  box-shadow: none !important;
+}
+
+.grid-cell:active::after,
+.grid-cell.cell-selected::after,
+.grid-cell.cell-correct::after,
+.grid-cell.cell-reveal::after,
+.grid-cell.cell-wrong::after {
+  opacity: 1;
 }
 
 /* ---- Selected cell (pair mode: first matching cell clicked) ---- */
@@ -670,9 +732,12 @@ body {
   color: var(--accent) !important;
   font-weight: 700;
   z-index: 3;
-  box-shadow: var(--nm-inset-md),
-              inset 0 0 0 2px var(--accent) !important;
   animation: cellSelected 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Selected keeps its accent ring, carried by the inset overlay */
+.grid-cell.cell-selected::after {
+  box-shadow: var(--nm-inset-md), inset 0 0 0 2px var(--accent);
 }
 
 @keyframes cellSelected {
@@ -686,8 +751,6 @@ body {
   color: var(--success) !important;
   font-weight: 700;
   z-index: 5;
-  box-shadow: var(--nm-inset-md),
-              inset 0 0 0 2px var(--success) !important;
   animation: cellCorrect 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -702,9 +765,12 @@ body {
   color: var(--warn) !important;
   font-weight: 700;
   z-index: 5;
-  box-shadow: var(--nm-inset-md),
-              inset 0 0 0 2px var(--warn) !important;
   animation: cellReveal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Reveal keeps its amber ring, carried by the inset overlay */
+.grid-cell.cell-reveal::after {
+  box-shadow: var(--nm-inset-md), inset 0 0 0 2px var(--warn);
 }
 
 @keyframes cellReveal {
@@ -716,8 +782,6 @@ body {
 /* ---- Wrong cell animation ---- */
 .grid-cell.cell-wrong {
   color: var(--danger) !important;
-  box-shadow: var(--nm-inset-md),
-              inset 0 0 0 2px var(--danger) !important;
   animation: cellShake 0.45s ease;
 }
 
