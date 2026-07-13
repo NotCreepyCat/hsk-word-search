@@ -177,6 +177,42 @@ body {
   box-shadow: var(--nm-inset-sm);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Menu toggle — hidden on desktop, shown only on mobile */
+.menu-toggle {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-input);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-mid);
+  box-shadow: var(--nm-raised-sm);
+  transition: box-shadow var(--transition), color var(--transition);
+}
+
+.menu-toggle:hover { color: var(--accent); }
+.menu-toggle:active { box-shadow: var(--nm-inset-sm); }
+
+.menu-toggle .icon-chevron {
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Chevron points up when the menu is expanded */
+.menu-toggle[aria-expanded="true"] .icon-chevron {
+  transform: rotate(180deg);
+}
+
 /* ============================================================
    Mode Switcher
    ============================================================ */
@@ -791,77 +827,100 @@ body {
    ============================================================ */
 
 @media (max-width: 780px) {
+  /* Page scrolls vertically; everything stacks in one column. */
   body {
     flex-direction: column;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 100vh;
   }
 
+  /* Sidebar becomes a normal-flow block at the top, full width. */
   .sidebar {
     width: 100%;
-    min-width: unset;
+    min-width: 0;
     height: auto;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 18px;
-    gap: 14px;
+    padding: 18px 16px;
+    gap: 16px;
     overflow: visible;
   }
 
-  .sidebar-header {
-    width: 100%;
+  /* Show the collapse toggle only on mobile. */
+  .menu-toggle {
+    display: flex;
   }
 
+  /* Collapsed state: hide the menu chrome so the grid rises to the top.
+     Task card + Skip/Reset stay visible for uninterrupted play. */
+  .sidebar.menu-collapsed .mode-switcher,
+  .sidebar.menu-collapsed .settings,
+  .sidebar.menu-collapsed .timer {
+    display: none;
+  }
+
+  /* Task card stays centered, just a touch more compact. */
   .task-card {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 18px;
-    gap: 10px;
+    padding: 20px 18px 18px;
   }
 
   .task-char {
-    font-size: 2rem;
-    margin: 0;
+    font-size: 2.4rem;
+    margin: 6px 0 2px;
   }
 
-  .sidebar-actions {
-    flex: 1;
-    min-width: 160px;
-  }
-
+  /* Settings lay out as a tidy 2-column grid instead of wrapping. */
   .settings {
-    width: 100%;
-    padding-top: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 14px;
+  }
+
+  .settings::before {
+    left: 0;
+    right: 0;
+  }
+
+  /* Toggles span the full width as their own row. */
+  .settings-toggles {
+    grid-column: 1 / -1;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 14px;
+    gap: 10px 22px;
   }
 
-  .settings-section {
-    flex: 1;
-    min-width: 130px;
-  }
-
+  /* Game area sits below the sidebar and scrolls into view. */
   .game-area {
-    padding: 16px;
-    overflow: hidden;
+    padding: 4px 16px 20px;
+    overflow: visible;
+    align-items: flex-start;
   }
 
+  /* Always square, always fits the viewport width. */
   .grid-container {
-    width:  min(calc(100vw - 32px), calc(100vh - 300px));
-    height: min(calc(100vw - 32px), calc(100vh - 300px));
+    width: 100%;
+    max-width: 560px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    max-height: none;
+    margin: 0 auto;
   }
 }
 
 @media (max-width: 480px) {
+  html {
+    font-size: 13px;
+  }
+
   .task-char {
-    font-size: 1.6rem;
+    font-size: 2rem;
+  }
+
+  /* Single column for settings on the smallest screens. */
+  .settings {
+    grid-template-columns: 1fr;
   }
 
   .grid-container {
-    width:  calc(100vw - 24px);
-    height: calc(100vw - 24px);
-    max-height: 62vw;
+    padding: 8px;
   }
 }

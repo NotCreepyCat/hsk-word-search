@@ -651,15 +651,49 @@ function renderGrid() {
       const delay = (index / totalCells) * maxDelay;
       cell.style.setProperty('--cell-delay', `${delay.toFixed(3)}s`);
 
-      // Click handler
-      cell.addEventListener('click', () => handleCellClick(r, c));
+      // Click handler — a plain tap/click plays the cell, unless a long-press
+      // preview just fired on touch (that gesture is a peek, not a move).
+      cell.addEventListener('click', () => {
+        if (_suppressCellClick) { _suppressCellClick = false; return; }
+        handleCellClick(r, c);
+      });
 
-      // Tooltip: show word info on hover
+      // Tooltip: hover to preview on mouse; long-press to peek on touch.
       const termData = grid[r][c].term;
       if (termData) {
-        cell.addEventListener('mouseenter', (e) => scheduleCellTooltip(e, termData));
+        // --- Mouse (hover-capable) devices ---
+        cell.addEventListener('mouseenter', (e) => {
+          // Ignore the synthetic mouseenter a tap emits on touch screens,
+          // otherwise the preview would appear with no mouseleave to hide it.
+          if (e.timeStamp - _lastTouchTime < 700) return;
+          scheduleCellTooltip(e, termData);
+        });
         cell.addEventListener('mousemove',  moveCellTooltip);
         cell.addEventListener('mouseleave', hideCellTooltip);
+
+        // --- Touch devices: long-press to peek, release to dismiss ---
+        cell.addEventListener('touchstart', (e) => {
+          _lastTouchTime = e.timeStamp;
+          _suppressCellClick = false;
+          clearTimeout(_pressTimer);
+          const t = e.touches[0];
+          const pos = { clientX: t.clientX, clientY: t.clientY };
+          _pressTimer = setTimeout(() => {
+            _suppressCellClick = true;      // long press → peek, don't play
+            showCellTooltip(pos, termData);
+          }, 450);
+        }, { passive: true });
+
+        const cancelPress = () => clearTimeout(_pressTimer);
+        cell.addEventListener('touchmove', cancelPress, { passive: true });
+        cell.addEventListener('touchend', () => {
+          clearTimeout(_pressTimer);
+          if (_suppressCellClick) hideCellTooltip();   // dismiss the peek
+        });
+        cell.addEventListener('touchcancel', () => {
+          clearTimeout(_pressTimer);
+          hideCellTooltip();
+        });
       }
 
       fragment.appendChild(cell);
@@ -841,6 +875,31 @@ function applyDarkMode() {
   }
 }
 
+/** Mobile collapsible menu: hide mode-switcher + settings behind a toggle so
+ *  the task card and grid sit near the top. Expanded by default on desktop. */
+function initMenuToggle() {
+  const sidebar = document.querySelector('.sidebar');
+  const btn = document.getElementById('menu-toggle');
+  if (!sidebar || !btn) return;
+
+  const mq = window.matchMedia('(max-width: 780px)');
+
+  const setExpanded = (expanded) => {
+    sidebar.classList.toggle('menu-collapsed', !expanded);
+    btn.setAttribute('aria-expanded', String(expanded));
+  };
+
+  // Collapse by default on mobile; always expanded on desktop.
+  setExpanded(!mq.matches);
+
+  btn.addEventListener('click', () => {
+    setExpanded(sidebar.classList.contains('menu-collapsed'));
+  });
+
+  // Reset to the sensible default when crossing the breakpoint.
+  mq.addEventListener('change', e => setExpanded(!e.matches));
+}
+
 /** Sync the sidebar data-mode attribute and title to current game mode. */
 function applyGameMode() {
   const sidebar = document.querySelector('.sidebar');
@@ -947,6 +1006,11 @@ function initSettingsListeners() {
 let _tooltip = null;
 let _tooltipTimer = null;
 
+// Touch interaction state (long-press peek vs. tap-to-play)
+let _pressTimer = null;
+let _suppressCellClick = false;
+let _lastTouchTime = 0;
+
 /** Cache the tooltip DOM element after the page loads. */
 function initTooltip() {
   _tooltip = document.getElementById('cell-tooltip');
@@ -1035,6 +1099,7 @@ function init() {
 
   // 4. Attach event listeners
   initSettingsListeners();
+  initMenuToggle();
 
   // 5. Build term pool and start first round
   buildPool();
