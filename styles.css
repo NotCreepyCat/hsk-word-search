@@ -640,7 +640,6 @@ body {
   padding: var(--cell-gap);
   border-radius: var(--radius-lg);
   background: var(--bg);
-  box-shadow: var(--nm-inset-lg);
 
   /* Square: constrained by both viewport dimensions */
   width:  min(calc(100vw - var(--sidebar-width) - 64px), calc(100vh - 64px));
@@ -954,7 +953,7 @@ body {
 
   /* Game area sits below the sidebar and scrolls into view. */
   .game-area {
-    padding: 4px 16px 20px;
+    padding: 16px 16px 20px;
     overflow: visible;
     align-items: flex-start;
   }
